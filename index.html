@@ -2,30 +2,482 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Morning Briefing</title>
 <style>
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
-    background: #0f1117;
-    color: #e4e4e7;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    padding: 24px;
-    text-align: center;
-  }
-  .container { max-width: 400px; }
-  h1 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  p { color: #8b8d98; font-size: 14px; }
+:root {
+  --bg: #0f1117;
+  --surface: #1a1d27;
+  --surface-hover: #242836;
+  --border: #2a2e3a;
+  --text: #e4e4e7;
+  --text-dim: #8b8d98;
+  --text-muted: #5a5d6a;
+  --accent: #6c8cff;
+  --accent-glow: rgba(108, 140, 255, 0.15);
+  --green: #4ade80;
+  --green-dim: rgba(74, 222, 128, 0.15);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251, 191, 36, 0.15);
+  --red: #f87171;
+  --red-dim: rgba(248, 113, 113, 0.15);
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  -webkit-tap-highlight-color: transparent;
+  padding-bottom: env(safe-area-inset-bottom, 24px);
+  line-height: 1.5;
+}
+
+/* ---- Header ---- */
+.briefing-header {
+  padding: 20px 16px 12px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  border-bottom: 1px solid var(--border);
+}
+.briefing-header h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.briefing-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
+.briefing-meta span {
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+/* ---- Sections ---- */
+.briefing-sections {
+  padding: 8px 0 24px;
+}
+
+.section {
+  margin: 8px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+  transition: background 0.15s;
+}
+.section-header:active {
+  background: var(--surface-hover);
+}
+
+.section-icon {
+  font-size: 18px;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.section-chevron {
+  font-size: 12px;
+  color: var(--text-dim);
+  transition: transform 0.2s;
+}
+.section.collapsed .section-chevron {
+  transform: rotate(-90deg);
+}
+
+.section-body {
+  padding: 0 16px 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow: hidden;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+}
+.section.collapsed .section-body {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* ---- Section body content styling ---- */
+.section-body p {
+  margin-bottom: 8px;
+}
+.section-body p:last-child {
+  margin-bottom: 0;
+}
+
+.section-body strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.section-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+  font-size: 13px;
+}
+.section-body th {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.section-body td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--border);
+}
+.section-body tr:last-child td {
+  border-bottom: none;
+}
+
+.section-body ul, .section-body ol {
+  padding-left: 20px;
+  margin: 6px 0;
+}
+.section-body li {
+  margin-bottom: 4px;
+}
+
+.section-body h1, .section-body h2, .section-body h3 {
+  margin: 12px 0 6px;
+  font-weight: 600;
+}
+.section-body h1 { font-size: 16px; }
+.section-body h2 { font-size: 15px; }
+.section-body h3 { font-size: 14px; color: var(--text-dim); }
+
+/* ---- Score-specific: prominent numbers ---- */
+.section-body .score-number {
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+.section-body .score-delta {
+  font-size: 14px;
+  color: var(--green);
+  font-weight: 500;
+}
+
+/* ---- Status indicators ---- */
+.status-on-track, .status-green {
+  color: var(--green);
+}
+.status-needs-attention, .status-amber {
+  color: var(--amber);
+}
+.status-behind, .status-red {
+  color: var(--red);
+}
+
+/* ---- Placeholder for missing sections ---- */
+.section-unavailable {
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 8px 0;
+}
+
+/* ---- Responsive tweaks ---- */
+@media (max-width: 380px) {
+  .section { margin: 6px 12px; }
+  .section-body { font-size: 13px; }
+  .section-body table { font-size: 12px; }
+}
 </style>
 </head>
 <body>
-<div class="container">
+
+<div class="briefing-header">
   <h1>Morning Briefing</h1>
-  <p>Briefing not yet generated. The pipeline runs nightly at ~8 PM PT.</p>
+  <div class="briefing-meta">
+    <span id="briefing-date">Thursday, April 9, 2026</span>
+    <span id="briefing-timestamp">Generated 1:40 PM PT</span>
+  </div>
 </div>
+
+<div class="briefing-sections">
+
+  <!-- Section 1: Your Day -->
+  <div class="section" data-section="1">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#9728;</span>
+      <span class="section-title">Your Day</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-1 -->
+<p>Today is <strong>Wednesday, April 9</strong>. Standard day. Week 2.</p>
+<p><strong>Task preview:</strong>
+- Gym: HIIT
+- Housework: Standard (vacuum)
+- Dinner: Chicken Stir-Fry
+- Prep needed: chicken breast, broccoli, bell pepper, soy sauce</p>
+<p><strong>Flags:</strong>
+- No calendar events
+- No overdue items</p>
+<!-- /SECTION-1 -->
+    </div>
+  </div>
+
+  <!-- Section 2: Your Score -->
+  <div class="section" data-section="2">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#9733;</span>
+      <span class="section-title">Your Score</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-2 -->
+<p><strong>Positive Steps:</strong> 247 (+12 yesterday)</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Spent</th>
+<th>Budget</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dining/Entertainment</td>
+<td>$340</td>
+<td>$1,000</td>
+<td>On track</td>
+</tr>
+<tr>
+<td>Groceries</td>
+<td>$520</td>
+<td>$1,000</td>
+<td>On track</td>
+</tr>
+<tr>
+<td>Shopping</td>
+<td>$180</td>
+<td>$550</td>
+<td>On track</td>
+</tr>
+<tr>
+<td>Gas</td>
+<td>$45</td>
+<td>$100</td>
+<td>On track</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>$1,085</strong></td>
+<td><strong>$2,650</strong></td>
+<td><strong>On track</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Routine (last 7 days):</strong> Blocks: 82% | Gym: 3/4 | Walks: 38/42 | Streak: 4 days</p>
+<table>
+<thead>
+<tr>
+<th>Goal</th>
+<th>Status</th>
+<th>Key metric</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Launch blog</td>
+<td>Needs attention</td>
+<td>WordPress not deployed</td>
+</tr>
+<tr>
+<td>2. Build orchestration</td>
+<td>Starting</td>
+<td>Phase 3 in design</td>
+</tr>
+<tr>
+<td>3. Routine automaticity</td>
+<td>In progress</td>
+<td>Gym week 2, walks strong</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Next reward:</strong> OMSI + Jacqueline -- 1 day | $660 remaining in entertainment budget</p>
+<p><strong>Defusion:</strong> 3/4 this week (avg intensity 4/10)</p>
+<!-- /SECTION-2 -->
+    </div>
+  </div>
+
+  <!-- Section 3: News Briefing -->
+  <div class="section" data-section="3">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#9881;</span>
+      <span class="section-title">News Briefing</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-3 -->
+<p><strong>Top Stories:</strong>
+- Federal Reserve signals rate decision coming in May
+- Oregon Legislature advances housing bill
+- Tech sector earnings beat expectations across major companies</p>
+<p><strong>Portland/PNW:</strong>
+- Trimet fare restructuring proposal moves to public comment period
+- Columbia River Gorge trail reopens after winter closures</p>
+<p><strong>AI/Tech:</strong>
+- New benchmarks show rapid improvement in code generation quality
+- EU AI Act enforcement timeline clarified for 2027</p>
+<!-- /SECTION-3 -->
+    </div>
+  </div>
+
+  <!-- Section 4: Rhetoric Update -->
+  <div class="section" data-section="4">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#9998;</span>
+      <span class="section-title">Rhetoric Update</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-4 -->
+<p class="section-unavailable">Rhetoric Update -- section available when file system is provided</p>
+<!-- /SECTION-4 -->
+    </div>
+  </div>
+
+  <!-- Section 5: Local + Feel-Good -->
+  <div class="section" data-section="5">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#127793;</span>
+      <span class="section-title">Local + Feel-Good</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-5 -->
+<p><strong>Weather:</strong> 58F, partly cloudy. Rain likely after 3 PM. High tomorrow: 62F.</p>
+<p><strong>This week:</strong>
+- Portland Saturday Market opens for the season (SW Ankeny, 10am-4pm)
+- Cherry blossoms at peak bloom along the waterfront
+- Vancouver Farmers Market: asparagus, rhubarb, spring greens arriving</p>
+<p><strong>Seasonal note:</strong> Sunset at 7:52 PM -- days gaining ~2.5 min/day through April. First hummingbirds spotted in Clark County this week.</p>
+<!-- /SECTION-5 -->
+    </div>
+  </div>
+
+  <!-- Section 6: Research Digest -->
+  <div class="section" data-section="6">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#128218;</span>
+      <span class="section-title">Research Digest</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-6 -->
+<p><strong>Completed since last briefing:</strong>
+- <em>Cognitive defusion meta-analysis (2024)</em> -- 10-second protocol shows comparable outcomes to longer durations in mild-moderate triggers
+- <em>Habit loop disruption in digital environments</em> -- context-dependent cues reduce by 40% when phone is in different room</p>
+<p><strong>Next in queue:</strong>
+- Sycophancy in AI systems (priority: high) -- for blog post draft review</p>
+<p><strong>New candidates for Friday review:</strong>
+- Morning routine optimization and circadian alignment -- surfaced from health tracking patterns</p>
+<!-- /SECTION-6 -->
+    </div>
+  </div>
+
+  <!-- Section 7: Work Queue -->
+  <div class="section" data-section="7">
+    <div class="section-header" onclick="toggleSection(this)">
+      <span class="section-icon">&#128187;</span>
+      <span class="section-title">Work Queue</span>
+      <span class="section-chevron">&#9660;</span>
+    </div>
+    <div class="section-body">
+      <!-- SECTION-7 -->
+<p><strong>TODAY PRIORITY:</strong>
+Phase 3: Morning briefing pipeline build</p>
+<p><em>Why:</em> Goal 2 -- build orchestration layer</p>
+<p><em>Context:</em> Architecture approved. Hand build specs to Claude Code.</p>
+<p><strong>IF TIME / IF PRIMARY IS BLOCKED:</strong>
+Voice check AI system draft (75/100)</p>
+<p><em>Why:</em> Goal 1 -- blog launch package</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Status</th>
+<th>Action needed?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fred Meyer</td>
+<td>OK</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Spotify</td>
+<td>OK</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Wallpaper</td>
+<td>OK</td>
+<td>None</td>
+</tr>
+<tr>
+<td>News Briefing</td>
+<td>OK</td>
+<td>None</td>
+</tr>
+<tr>
+<td>Research Pipeline</td>
+<td>In redesign</td>
+<td>Design session pending</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Blog pipeline:</strong> Next action: Amy voice check on AI system draft. Awaiting: Amy.</p>
+<!-- /SECTION-7 -->
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggleSection(header) {
+  header.closest('.section').classList.toggle('collapsed');
+}
+</script>
+
 </body>
 </html>
